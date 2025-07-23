@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mc Apple - Simulador</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="libs/toastify.min.css">
+  <script src="libs/sweetalert2.all.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Mc Apple</h1>
+    <button id="ver-carrito">🛒 <span id="contador-carrito">0</span></button>
+  </header>
+  <main id="contenedor-productos"></main>
+
+  <div id="modal-carrito" class="modal hidden">
+    <h2>Tu Carrito</h2>
+    <div id="carrito-contenido"></div>
+    <p>Total: $<span id="total-carrito">0</span></p>
+    <button id="btn-pagar">Pagar</button>
+    <button id="btn-cerrar">Cerrar</button>
+  </div>
+
+  <script src="libs/toastify.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

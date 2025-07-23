@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nombre": "iPhone 16",
+    "precio": 1299,
+    "imagen": "img/16.png"
+  },
+  {
+    "id": 2,
+    "nombre": "iPhone 16 Plus",
+    "precio": 1399,
+    "imagen": "img/16plus.png"
+  },
+  {
+    "id": 3,
+    "nombre": "iPhone 16 Pro",
+    "precio": 1599,
+    "imagen": "img/16pro.png"
+  },
+  {
+    "id": 4,
+    "nombre": "iPhone 16 Pro Max",
+    "precio": 1799,
+    "imagen": "img/16promax.png"
+  }
+]
