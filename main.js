@@ -11,16 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
   fetch('productos.json')
-    .then(res => res.json())
+    .then(response => response.json())
     .then(productos => {
-      productos.forEach(prod => {
+      productos.forEach(producto => {
         const div = document.createElement('div');
         div.classList.add('producto');
         div.innerHTML = `
-          <img src="${prod.imagen}" alt="${prod.nombre}">
-          <h3>${prod.nombre}</h3>
-          <p>$${prod.precio}</p>
-          <button class="agregar" data-id="${prod.id}">Agregar</button>
+          <img src="${producto.imagen}" alt="${producto.nombre}" />
+          <h3>${producto.nombre}</h3>
+          <p>$${producto.precio}</p>
+          <button class="agregar" data-id="${producto.id}">Agregar</button>
         `;
         contenedor.appendChild(div);
       });
@@ -29,9 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('agregar')) {
           const id = parseInt(e.target.dataset.id);
           const producto = productos.find(p => p.id === id);
-          carrito.push(producto);
-          actualizarCarrito();
-          Toastify({ text: "Producto agregado", duration: 2000, gravity: "top", position: "right", style: { background: "#000" } }).showToast();
+          agregarAlCarrito(producto);
         }
       });
     });
@@ -47,18 +45,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnPagar.addEventListener('click', () => {
     if (carrito.length === 0) {
-      Swal.fire("Tu carrito está vacío");
+      Swal.fire('Tu carrito está vacío');
       return;
     }
     Swal.fire({
-      title: "¿Confirmás tu compra?",
-      icon: "question",
+      title: '¿Confirmás tu compra?',
+      icon: 'question',
       showCancelButton: true,
-      confirmButtonText: "Sí, pagar",
+      confirmButtonText: 'Sí, pagar',
     }).then(result => {
       if (result.isConfirmed) {
-        const msg = encodeURIComponent("Hola, quiero comprar estos productos: " + carrito.map(p => p.nombre).join(", "));
-        window.open(`https://wa.me/?text=${msg}`, "_blank");
+        const mensaje = carrito.map(p => `${p.nombre} x${p.cantidad}`).join(', ');
+        const total = calcularTotal();
+        const msg = encodeURIComponent(`Hola, quiero comprar estos productos: ${mensaje}. Total: $${total}`);
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
         carrito = [];
         actualizarCarrito();
         carritoModal.classList.add('hidden');
@@ -66,27 +66,60 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  function agregarAlCarrito(producto) {
+    const existe = carrito.find(p => p.id === producto.id);
+    if (existe) {
+      existe.cantidad++;
+    } else {
+      carrito.push({...producto, cantidad: 1});
+    }
+    actualizarCarrito();
+    Toastify({
+      text: `Agregaste ${producto.nombre}`,
+      duration: 2000,
+      gravity: 'top',
+      position: 'right',
+      style: {background: '#000'},
+    }).showToast();
+  }
+
   function mostrarCarrito() {
-    carritoContenido.innerHTML = "";
-    carrito.forEach((prod, index) => {
+    carritoContenido.innerHTML = '';
+    carrito.forEach((producto, index) => {
       const div = document.createElement('div');
-      div.textContent = `${prod.nombre} - $${prod.precio}`;
-      const btnEliminar = document.createElement('button');
-      btnEliminar.textContent = "Eliminar";
-      btnEliminar.addEventListener('click', () => {
-        carrito.splice(index, 1);
-        actualizarCarrito();
-        mostrarCarrito();
-      });
-      div.appendChild(btnEliminar);
+      div.classList.add('item-carrito');
+      div.innerHTML = `
+        <span>${producto.nombre}</span>
+        <span>Cantidad: ${producto.cantidad}</span>
+        <span>Subtotal: $${producto.precio * producto.cantidad}</span>
+        <button class="eliminar" data-index="${index}">Eliminar</button>
+      `;
       carritoContenido.appendChild(div);
     });
-    totalCarrito.textContent = carrito.reduce((acc, el) => acc + el.precio, 0);
+
+  carritoContenido.querySelectorAll('.eliminar').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = parseInt(btn.dataset.index);
+    carrito[idx].cantidad--;
+    if (carrito[idx].cantidad === 0) {
+      carrito.splice(idx, 1);
+    }
+    actualizarCarrito();
+    mostrarCarrito();
+  });
+});
+
+
+    totalCarrito.textContent = calcularTotal();
   }
 
   function actualizarCarrito() {
     localStorage.setItem('carrito', JSON.stringify(carrito));
-    contadorCarrito.textContent = carrito.length;
+    contadorCarrito.textContent = carrito.reduce((acc, p) => acc + p.cantidad, 0);
+  }
+
+  function calcularTotal() {
+    return carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
   }
 
   actualizarCarrito();
